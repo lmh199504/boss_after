@@ -12,25 +12,34 @@ router.get('/', function(req, res, next) {
 });
 
 
+
 router.post('/register',function (req,res,next) {
   //获取请求参数
   const {username,password,type} = req.body
+  console.log(username,password,type)
+  if(username === '' || password === '' || type === ''){
+    res.send({code:1,msg:"注册信息不正确."})
+    // return
+  }
+
+
   //判断是否存在，存在返回错误信息，如果不存在，保存
   UserModel.findOne({username},function (err,data) {
-    if(data){
+    if(err){
+      res.send({code:1,msg:"注册失败"})
+    }
 
+    if(data){
       res.send({code:1,msg:"此用户以存在"})
     }else{
       new UserModel({password:md5(password),username,type}).save(function (error,saveData) {
-
+        console.log(saveData)
         res.cookie('userid',saveData._id,{maxAge:1000*60*60*24})
-
         res.send({code:0,data:saveData})
       })
     }
   })
   //返回响应数据
-
 })
 
 router.post('/login',function (req,res,next) {
@@ -41,6 +50,7 @@ router.post('/login',function (req,res,next) {
     res.send({code:1,msg:'请输入密码'})
   }else {
     UserModel.findOne({username,password:md5(password)},filter,function (err,data) {
+      console.log(data)
       if(err){
         res.send({code:1,msg:"用户不存在"})
       }else{
@@ -53,6 +63,10 @@ router.post('/login',function (req,res,next) {
       }
     })
   }
+})
+
+router.post('*',function (req,res,next) {
+  console.log(req,res)
 })
 
 module.exports = router;

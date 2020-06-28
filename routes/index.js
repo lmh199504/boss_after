@@ -65,6 +65,31 @@ router.post('/login',function (req,res,next) {
   }
 })
 
+router.post('/updata',function (req,res,next) {
+  //从请求cookie 中获取userid
+
+  const userid = req.cookies.userid
+  if(!userid){
+    return res.send({code:1,msg:"请先登录."})
+  }
+  //存在userid，跟新数据库中对于id 的数据
+  const user = req.body
+  UserModel.findByIdAndDelete({_id:userid},user,function (error,oldUser) {
+    if(!error){
+      //通知浏览器删除userid 的cookie
+      res.clearCookie('userid')
+      res.send({code:1,msg:'请先登录。'})
+    }else {
+
+      const { _id,username,type } = oldUser
+      const data = Object.assign(user,{ _id,username,type })
+      res.send({code:1,data})
+    }
+  })
+
+})
+
+
 router.post('*',function (req,res,next) {
   console.log(req,res)
 })

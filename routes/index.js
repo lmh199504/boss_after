@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const md5 = require('blueimp-md5')
-const {UserModel} = require('../db/models')
+const {UserModel,ChatModel} = require('../db/models')
 
 const filter = { password:0,__v:0 }  //指定过滤的属性
 
@@ -121,6 +121,48 @@ router.get('/userlist',function (req,res,next) {
 
   })
 })
+
+router.get('/msglist',function (req,res,next) {
+  const userid = req.cookies.userid
+  if(!userid){
+    res.send({code:1,msg:"请先登陆."})
+  }else {
+    const users = {}
+    UserModel.find(function (error,userDocs) {
+
+      userDocs.forEach( item => {
+        users[item._id] = { username:item.username,header:item.header }
+      })
+      console.log(users)
+      ChatModel.find({'$or':[{from:userid},{to:userid}]},filter,function (error,chatMsgs) {
+        if(error){
+          return res.send({code:0,msg:"系统错误"})
+        }
+        res.send({code:0,data:{users,chatMsgs}})
+      })
+    })
+  }
+
+})
+
+
+/*
+* 标记消息已读
+* */
+router.post('/readmsg',function (req,res) {
+  const from = req.body.from
+  const to = req.cookies.userid
+  if(!to){
+    return res.send({code:1,msg:"请先登陆."})
+  }
+  ChatModel.update({from,to,read:false},{read:true},{multi:true},function (error,doc) {
+    if(error){
+      return res.send({cdoe:1,msg:error})
+    }
+    res.send({code:0,data:doc.nModified})
+  })
+})
+
 
 router.post('*',function (req,res,next) {
   console.log(req,res)

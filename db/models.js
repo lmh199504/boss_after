@@ -30,3 +30,19 @@ const UserModel = mongoose.model('user',userSchema)
 
 //向外暴露Model
 exports.UserModel = UserModel
+
+
+//定义chats 集合 文档对象Schema
+
+const chatSchema = mongoose.Schema({
+    from:{type:String,required:true},
+    to:{type:String,required:true},
+    chat_id:{type:String,required:true},
+    content:{type:String,required:true},
+    read:{type:Boolean,default:false},
+    create_time:{type:Number,required:true}
+})
+//定义Model
+const ChatModel = mongoose.model('chat',chatSchema)
+//向外暴露ChatModel
+exports.ChatModel = ChatModel

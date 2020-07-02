@@ -50,7 +50,6 @@ router.post('/login',function (req,res,next) {
     res.send({code:1,msg:'请输入密码'})
   }else {
     UserModel.findOne({username,password:md5(password)},filter,function (err,data) {
-      console.log(data)
       if(err){
         res.send({code:1,msg:"用户不存在"})
       }else{
@@ -110,7 +109,6 @@ router.get('/user',function (req,res,next) {
 
 router.get('/userlist',function (req,res,next) {
 
-  console.log(req.query)
   const { type } = req.query
 
   UserModel.find({type,header:{$exists: true}},filter,function (error,users) {
@@ -133,7 +131,7 @@ router.get('/msglist',function (req,res,next) {
       userDocs.forEach( item => {
         users[item._id] = { username:item.username,header:item.header }
       })
-      console.log(users)
+
       ChatModel.find({'$or':[{from:userid},{to:userid}]},filter,function (error,chatMsgs) {
         if(error){
           return res.send({code:0,msg:"系统错误"})

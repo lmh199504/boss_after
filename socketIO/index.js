@@ -1,8 +1,10 @@
 
 
-const { ChatModel } = require('../db/models')
+const { ChatModel,SocketModel } = require('../db/models')
 
 
+
+let userInfo = []
 module.exports = function io(server){
     const io = require('socket.io')(server);
     io.on('connection',(socket)=>{
@@ -23,13 +25,52 @@ module.exports = function io(server){
                     console.log(error)
                 }else{
                     //向所有连接的用户发消息
-                    io.emit('receiveMsg',chatMsg)
+
+
+                    SocketModel.findOne({userid:to},(error,userOne) => {
+                        if(error){
+                            console.log("向指定的id发送消息时，查找id错误")
+                            io.emit('receiveMsg',chatMsg) //向全部的在线用户发送消息
+                        }else if(userOne){
+                            console.log(userOne)
+                            //向指定的用户发消息
+                            io.to(userOne.socketid).emit('receiveMsg',chatMsg);
+                            //给当前连接用户也发送一条
+                            socket.emit('receiveMsg',chatMsg)
+
+                        }else {
+                            console.log("用户不在线")
+                            socket.emit('receiveMsg',chatMsg)
+                        }
+
+
+                    })
                     // socket.emit('receiveMsg',chatMsg);
                 }
             })
 
         })
-
+        socket.on('sendUser',(data) =>{
+            SocketModel.findOne({userid:data.userid},function (error,socketData) {
+                if(error){
+                    console.log("查找失败.")
+                }else{
+                    if(socketData){
+                        SocketModel.update({userid:data.userid},{socketid:socket.id},function (error,suc) {
+                            console.log('更新用户socketid',suc)
+                        })
+                    }else {
+                        new SocketModel({socketid:socket.id,userid:data.userid}).save((err,soc)=>{
+                            if(err){
+                                console.log("保存失败")
+                            }else {
+                                console.log("保存成功")
+                            }
+                        })
+                    }
+                }
+            })
+        })
     })
 }
 

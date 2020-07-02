@@ -46,3 +46,13 @@ const chatSchema = mongoose.Schema({
 const ChatModel = mongoose.model('chat',chatSchema)
 //向外暴露ChatModel
 exports.ChatModel = ChatModel
+
+
+//定义 scoketId 集合 文档对象
+
+const SocketSchma = mongoose.Schema({
+    userid:{type:String,required:true,unique:true},
+    socketid:{type:String,required:true}
+})
+const SocketModel = mongoose.model('socket',SocketSchma)
+exports.SocketModel = SocketModel

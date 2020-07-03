@@ -1,10 +1,10 @@
 
 
-const { ChatModel,SocketModel } = require('../db/models')
+const { ChatModel,SocketModel,UserModel } = require('../db/models')
 
 
 
-let userInfo = []
+
 module.exports = function io(server){
     const io = require('socket.io')(server);
     io.on('connection',(socket)=>{
@@ -57,7 +57,7 @@ module.exports = function io(server){
                 }else{
                     if(socketData){
                         SocketModel.update({userid:data.userid},{socketid:socket.id},function (error,suc) {
-                            console.log('更新用户socketid',suc)
+                            // console.log('更新用户socketid',suc)
                         })
                     }else {
                         new SocketModel({socketid:socket.id,userid:data.userid}).save((err,soc)=>{
@@ -67,6 +67,18 @@ module.exports = function io(server){
                                 console.log("保存成功")
                             }
                         })
+                    }
+                }
+            })
+
+            UserModel.findOne({_id:data.userid},function (error,userdata) {
+                if(error){
+                    console.log(error)
+                }else{
+                    try{
+                        console.log(userdata.username+ '----'+ userdata.type + '上线了')
+                    }catch (e) {
+
                     }
                 }
             })

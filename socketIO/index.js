@@ -12,9 +12,9 @@ module.exports = function io(server){
         //监听connection（用户连接）事件，socket为用户连接的实例
         socket.on('disconnect',()=>{
             //监听用户断开事件
-            console.log("用户"+socket.id+"断开连接");
+            // console.log("用户"+socket.id+"断开连接");
         });
-        console.log("用户"+socket.id+"连接");
+        // console.log("用户"+socket.id+"连接");
         socket.on('sendMsg',(data)=>{
             //监听msg事件（这个是自定义的事件）
             const {from,to,content } = data
@@ -32,7 +32,7 @@ module.exports = function io(server){
                             console.log("向指定的id发送消息时，查找id错误")
                             io.emit('receiveMsg',chatMsg) //向全部的在线用户发送消息
                         }else if(userOne){
-                            console.log(userOne)
+                            // console.log(userOne)
                             //向指定的用户发消息
                             io.to(userOne.socketid).emit('receiveMsg',chatMsg);
                             //给当前连接用户也发送一条
